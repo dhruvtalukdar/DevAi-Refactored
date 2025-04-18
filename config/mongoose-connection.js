@@ -7,7 +7,7 @@ console.log(process.env.PORT);
 
 export const connectDb = async () => {
     try{
-        await mongoose.connect(`${process.env.MONGODB_URI}/DevAI`);
+        await mongoose.connect(`${process.env.MONGODB_URI}/DevAi`);
         console.log("MongoDb Connected!!");
     }
     catch(error) {

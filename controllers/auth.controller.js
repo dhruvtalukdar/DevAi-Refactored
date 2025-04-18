@@ -1,4 +1,4 @@
-
+import { registerUser, loginUser } from "../services/auth.service.js";
 
 
 export const register = async (req, res) => {
@@ -10,13 +10,13 @@ export const register = async (req, res) => {
         res
             .cookie("accessToken", accessToken, {
                 httpOnly: true,
-                sameSite: "Strict",
+                sameSite: "None",
                 maxAge: 15 * 60 * 1000, // 15mins
                 path: "/"
             })
             .cookie("refreshToken", refreshToken, {
                 httpOnly: true,
-                sameSite: "Strict",
+                sameSite: "None",
                 maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
                 path: "/"       
             });
@@ -35,3 +35,28 @@ export const register = async (req, res) => {
     }
 }
 
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const { user, accessToken, refreshToken } = await loginUser(email, password);
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            // secure: process.env.NODE_ENV === "production",
+            sameSite: "Lax", // or "Lax" depending on frontend
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: "/",
+        });
+
+        console.log("Cookie headers has been set");
+        console.log("User logged in successfully");
+        // res.json({ success: true, message: "Login successful!", redirectUrl: "/users/about", token: `${token}` });
+        res.status(200).json({
+            user, accessToken, refreshToken
+        })
+    }
+    catch(err) {
+        res.status(400).json(err);
+        console.log("Error logging in user: ", err.message);
+    }
+}

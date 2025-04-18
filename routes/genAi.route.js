@@ -7,7 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 const router = express.Router();
 
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyAJtH5XYIRcH6NxQFOakQwzgeYIRuWJc4Y" });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); //process.env.GOOGLE_API_KEY!
 
 // async function main() {
 //   const response = await ai.models.generateContent({
@@ -20,7 +20,8 @@ const ai = new GoogleGenAI({ apiKey: "AIzaSyAJtH5XYIRcH6NxQFOakQwzgeYIRuWJc4Y" }
 // main();
 
 router.post('/generate', async(req, res) => {
-    const prompt = "Explain what is Generative AI";
+
+    const { prompt } = req.body;
 
     if(!prompt) {
         return res.status(400).json({ error: "Prompt is required" });
@@ -38,7 +39,7 @@ router.post('/generate', async(req, res) => {
             contents: prompt,
           });
           console.log(response.text);
-          res.json(response);
+          res.json({response: response.text});
     }
     catch(error) {
         console.error("Gemini Error:", error);
