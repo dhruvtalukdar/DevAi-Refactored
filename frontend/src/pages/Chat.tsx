@@ -4,7 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Send, User, LogOut } from 'lucide-react';
 import axios from "axios";
 import { motion } from 'framer-motion';
-
+import ReactMarkdown from 'react-markdown';
+// pretty syntax highlighting (like ChatGPT)
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 type Message = {
   id: number;
@@ -12,6 +15,34 @@ type Message = {
   isUser: boolean;
   timestamp: Date;
 };
+
+
+// Custom components for rendering Markdown
+// This is where we can customize how different elements are rendered in the chat
+const markdownComponents = {
+  code: (props: any) => {
+    const { inline, className, children, ...rest } = props;
+    const match = /language-(\w+)/.exec(className || '');
+
+    return !inline && match ? (
+      <SyntaxHighlighter
+        style={oneDark}
+        language={match[1]}
+        PreTag="div"
+        {...rest}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    ) : (
+      <code className="bg-base-300 px-1 py-0.5 rounded" {...rest}>
+        {children}
+      </code>
+    );
+  }
+};
+
+
+
 
 const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,7 +63,7 @@ const Chat = () => {
     setMessages([
       {
         id: 1,
-        content: "Hello! I'm ChatSphere, your AI assistant. How can I help you today?",
+        content: "Hello! My name is Neko, your MERN mentor🐱. How can I help you today?",
         isUser: false,
         timestamp: new Date()
       }
@@ -65,13 +96,20 @@ const Chat = () => {
     setInput('');
     setIsLoading(true);
 
+    const userId = localStorage.getItem('userId') || "user123";
+    const userName = localStorage.getItem('userName') || 'friend';
+
     try {
-      const response = await axios.post('http://localhost:3000/genai/generate',
-        { prompt: input },
+      const response = await axios.post('http://localhost:3000/genaiMemory/generateWithMemory',
+        {
+          prompt: input,
+          userId: userId,
+          userName: "Dhruv"
+        },
         { withCredentials: true }
       );
 
-      const aiText = response.data?.text || response.data?.response || "No response from AI";
+      const aiText = response.data?.text || response.data?.response || "No response from Neko 🐱";
 
       const botMessage: Message = {
         id: Date.now() + 1,
@@ -86,7 +124,7 @@ const Chat = () => {
       console.error("AI error:", error);
       const errorMessage: Message = {
         id: Date.now() + 2,
-        content: "Sorry, there was a problem contacting the AI.",
+        content: "Neko ran into an issue trying to help you. 🐾 Try again in a bit!",
         isUser: false,
         timestamp: new Date()
       };
@@ -95,18 +133,6 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-
-  // const generateResponse = (userInput: string): string => {
-  //   const responses = [
-  //     "That's an interesting point. Let me think about that...",
-  //     "I understand what you're asking. Based on my knowledge, I would say...",
-  //     "Great question! Here's what I know about that topic...",
-  //     "I'm not entirely sure about that, but I can offer some thoughts...",
-  //     "Let me provide you with some information that might help with your question."
-  //   ];
-
-  //   return responses[Math.floor(Math.random() * responses.length)];
-  // };
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -119,7 +145,7 @@ const Chat = () => {
       <header className="bg-base-100 shadow-md p-4">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">ChatSphere</h1>
-          <button 
+          <button
             onClick={handleLogout}
             className="btn btn-sm btn-ghost"
           >
@@ -127,7 +153,7 @@ const Chat = () => {
           </button>
         </div>
       </header>
-  
+
       {/* Chat container */}
       <div className="flex-1 container mx-auto max-w-4xl p-4 overflow-hidden flex flex-col">
         {/* Messages area */}
@@ -150,30 +176,31 @@ const Chat = () => {
                 </div>
               </div> */}
               <div className="chat-image avatar">
-  {message.isUser ? (
-    <div className="w-10 rounded-full">
-      <img src="/user-photo.jpg" alt="User" />
-    </div>
-  ) : (
-    <div className="w-10 rounded-full">
-      <img src="/robot-avatar.png" alt="AI" />
-    </div>
-  )}
-</div>
+                {message.isUser ? (
+                  <div className="w-10 rounded-full">
+                    <img src="/user-photo.jpg" alt="User" />
+                  </div>
+                ) : (
+                  <div className="w-10 rounded-full">
+                    <img src="/robot-avatar.png" alt="AI" />
+                  </div>
+                )}
+              </div>
 
               <div
-                className={`chat-bubble whitespace-pre-wrap break-words max-w-[80%] ${
-                  message.isUser ? 'chat-bubble-primary' : 'bg-base-200 text-base-content'
-                }`}
+                className={`chat-bubble break-words max-w-[80%] prose prose-sm dark:prose-invert ${message.isUser ? 'chat-bubble-primary' : 'bg-base-200 text-base-content'
+                  }`}
               >
-                {message.content}
+                <ReactMarkdown components={markdownComponents}>
+                  {message.content}
+                </ReactMarkdown>
               </div>
               <div className="chat-footer opacity-50 text-xs">
                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             </motion.div>
           ))}
-  
+
           {isLoading && (
             <div className="chat chat-start">
               <div className="chat-image avatar">
@@ -187,10 +214,10 @@ const Chat = () => {
               </div>
             </div>
           )}
-  
+
           <div ref={messagesEndRef} />
         </div>
-  
+
         {/* Input area */}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
@@ -201,9 +228,9 @@ const Chat = () => {
             className="input input-bordered flex-1 text-white"
             disabled={isLoading}
           />
-          <button 
-            type="submit" 
-            className="btn btn-primary" 
+          <button
+            type="submit"
+            className="btn btn-primary"
             disabled={isLoading || !input.trim()}
           >
             <Send size={18} />

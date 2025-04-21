@@ -77,6 +77,7 @@ const Index = () => {
             </Link>
           </div>
           
+          
           <div className={`mt-16 flex justify-center gap-6 transition-all delay-500 duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <Badge variant="secondary" className="py-2 px-4 text-sm">Fast</Badge>
             <Badge variant="secondary" className="py-2 px-4 text-sm">Intelligent</Badge>

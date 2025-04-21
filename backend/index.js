@@ -5,6 +5,7 @@ import { connectDb } from "./config/mongoose-connection.js";
 // importing the routes
 import genAiRoute from "./routes/genAi.route.js";
 import authRoute from "./routes/auth.route.js";
+import genAiMemoryRoute from "./routes/genAi.memory.route.js";
 
 // using dotenv globally 
 import dotenv from "dotenv";
@@ -17,7 +18,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_2].filter(Boolean),
     credentials: true,
   })
 );
@@ -25,6 +26,7 @@ app.use(
 // Routes
 app.use('/auth', authRoute);
 app.use("/genai", genAiRoute);
+app.use("/genaiMemory", genAiMemoryRoute);
 
 
 app.use('/', (req, res) => {

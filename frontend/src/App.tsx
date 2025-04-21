@@ -7,6 +7,7 @@ import Signup from "./pages/Signup";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 import AuthGuard from "./components/AuthGuard";
+import ThemeSwitcher from "./components/ThemeSwitcher";
 
 const App = () => {
   const [theme, setTheme] = useState(() => {
@@ -21,6 +22,11 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      {/* Global theme switcher UI */}
+      <div className="p-4 flex justify-end">
+        <ThemeSwitcher theme={theme} setTheme={setTheme} />
+      </div>
+
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />

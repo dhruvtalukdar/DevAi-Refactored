@@ -29,7 +29,10 @@ const Login = () => {
         if(response.status === 201 || response.status === 200) {
           localStorage.setItem('isAuthenticated', 'true');
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('userId', response.data.user._id);
+          localStorage.setItem('userName', response.data.user.fullName);
           alert("Logged In Succesfully");
+          console.log(response.data.user.fullName);
           navigate('/chat');
         }
         else {
