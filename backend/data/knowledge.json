@@ -1,0 +1,18 @@
+[
+    {
+      "id": 1,
+      "title": "MongoDB Collections",
+      "text": "MongoDB stores data in flexible, JSON-like documents in collections. Collections do not enforce document structure."
+    },
+    {
+      "id": 2,
+      "title": "Express Middleware",
+      "text": "Middleware functions in Express are functions that have access to the request and response objects."
+    },
+    {
+      "id": 3,
+      "title": "React Props vs State",
+      "text": "Props are read-only and passed from parent to child. State is managed within the component."
+    }
+  ]
+  
